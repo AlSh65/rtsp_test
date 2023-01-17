@@ -9,18 +9,14 @@ logging.basicConfig(filename='rtsp_stream_recorder.log', level=logging.DEBUG)
 
 def record_rtsp_stream(stream_url, duration):
     try:
-        # Open the RTSP stream
         cap = cv2.VideoCapture(stream_url)
 
-        # Get the video frame width and height
         frame_width = int(cap.get(3))
         frame_height = int(cap.get(4))
 
-        # Define the codec and create a video writer object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter('output.avi', fourcc, 20.0, (frame_width, frame_height))
 
-        # Start recording
         start_time = time.time()
         end_time = start_time + duration
         while True:
@@ -32,7 +28,6 @@ def record_rtsp_stream(stream_url, duration):
             if time.time() >= end_time:
                 break
 
-        # Release the video writer and capture objects
         out.release()
         cap.release()
         logging.info("Recording finished successfully")
@@ -71,7 +66,7 @@ def re_encode_video(file_path, codec='XVID', fps=20):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('stream_url', help='RTSP stream URL')
-    parser.add_argument('duration', type=int, help='Duration of recording in seconds')
+    parser.add_argument('duration', type=int, help='Duration')
     args = parser.parse_args()
     stream_url = args.stream_url
     duration = args.duration
