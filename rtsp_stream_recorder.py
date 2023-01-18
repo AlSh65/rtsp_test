@@ -1,5 +1,5 @@
 import argparse
-
+from moviepy.editor import VideoFileClip
 import cv2
 import time
 import logging
@@ -24,43 +24,21 @@ def record_rtsp_stream(stream_url, duration):
             if not ret or frame is None:
                 logging.error("Failed to capture video frame")
                 break
+
             out.write(frame)
             if time.time() >= end_time:
                 break
-
         out.release()
         cap.release()
         logging.info("Recording finished successfully")
     except Exception as e:
-        logging.error("Failed to record RTSP stream. Reason: {}".format(str(e)))
+        logging.error(f"Failed to record RTSP stream. Reason: {str(e)}")
 
 
-def compress_video(file_path, codec='XVID', fps=20):
-    cap = cv2.VideoCapture(file_path)
-    fourcc = cv2.VideoWriter_fourcc(*codec)
-    ret, frame = cap.read()
-    video_shape = (frame.shape[1], frame.shape[0])
-    out = cv2.VideoWriter('compressed_' + file_path, fourcc, fps, video_shape)
-    while ret:
-        out.write(frame)
-        ret, frame = cap.read()
-    out.release()
-    cap.release()
-    logging.info("Video Compressed successfully")
-
-
-def re_encode_video(file_path, codec='XVID', fps=20):
-    cap = cv2.VideoCapture(file_path)
-    fourcc = cv2.VideoWriter_fourcc(*codec)
-    ret, frame = cap.read()
-    video_shape = (frame.shape[1], frame.shape[0])
-    out = cv2.VideoWriter('re-encoded_' + file_path, fourcc, fps, video_shape)
-    while ret:
-        out.write(frame)
-        ret, frame = cap.read()
-    out.release()
-    cap.release()
-    logging.info("Video re-encoded successfully")
+def modification_video(file_path):
+    clip = VideoFileClip(file_path)
+    clip.write_videofile(file_path, codec='libx264', audio_codec='aac', preset='medium', bitrate='2000k')
+    logging.info("Video modification successfully")
 
 
 if __name__ == '__main__':
@@ -72,5 +50,4 @@ if __name__ == '__main__':
     duration = args.duration
     record_rtsp_stream(stream_url, duration)
     file_path = 'output.avi'
-    compress_video(file_path)
-    re_encode_video(file_path)
+    modification_video(file_path)
